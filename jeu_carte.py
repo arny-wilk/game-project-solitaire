@@ -1,8 +1,9 @@
 from deck_of_cards import deck_of_cards
+from deck_of_cards.deck_of_cards import DeckOfCards
 
 """On instancie le paquet de carte avec la librairie deck_of_cards"""
 
-deck_obj = deck_of_cards.DeckOfCards()
+deck_obj: DeckOfCards = deck_of_cards.DeckOfCards()
 deck_obj.shuffle_deck()
 print("\nLes cartes sont melangees !\n")
 
@@ -10,22 +11,26 @@ print("\nLes cartes sont melangees !\n")
 
 
 class Colonne:
-    def __init__(self, colonne=None) -> list:
+    def __init__(self, numero: int, colonne: list = None):
+        self.numero = numero
         if colonne is None:
             self.colonne = []
 
     def ajouter_carte(self):
         card = deck_obj.give_random_card()
-        carte = {str(card.suit): card.value}
+        carte: dict[str, int] = {str(card.suit): card.value}
         self.colonne.append(carte)
+        return carte
 
+    @property
     def retirer_carte(self):
         if len(self.colonne) == 0:
             print("Il n'y a aucune carte dans la pile")
         else:
             return self.colonne.pop()
 
-    def afficher_premiere_carte(self):
+    @property
+    def afficher_premiere_carte(self) -> dict:
         if len(self.colonne) == 0:
             print("Il n'y a aucun carte dans la pile")
         else:
@@ -36,64 +41,44 @@ class Colonne:
 
 
 class Foundation(Colonne):
-    def __init__(self, name, couleur, foundations=None):
+    def __init__(self, name: str, numero: int, foundation=None):
+        super().__init__(numero)
         self.name = name
-        self.couleur = couleur
-        if foundations is None:
-            foundations = []
-        super(Foundation, self).__init__()
+        if foundation is None:
+            self.foundation = []
 
-    def afficher_foundation(self):
-        print(f'{self.foundation}')
+    def ajouter_carte(self, carte=None):
+        self.foundation.append(carte)
 
 
 """ Distribution des cartes sur 7 colonnes. La première carte est toujours visible """
+les_colonnes = [Colonne(numero=1), Colonne(numero=2), Colonne(numero=3), Colonne(numero=4), Colonne(numero=5),
+                Colonne(numero=6), Colonne(numero=7)]
 
-colonne_1 = Colonne()
-colonne_1.ajouter_carte()
-colonne_1.afficher_pile()
+les_foundations = [Foundation('Pique', 0), Foundation('Coeur', 1), Foundation('Carreaux', 2),
+                   Foundation('Trefle', 3)]
 
-colonne_2 = Colonne()
-for _ in range(3):
-    colonne_2.ajouter_carte()
-colonne_2.afficher_pile()
 
-colonne_3 = Colonne()
-for _ in range(4):
-    colonne_3.ajouter_carte()
-colonne_3.afficher_pile()
+def commencer_solitaire():
+    for colonne in les_colonnes:
+        for _ in range(colonne.numero):
+            colonne.ajouter_carte()
+        colonne.afficher_pile()
 
-colonne_4 = Colonne()
-for _ in range(5):
-    colonne_4.ajouter_carte()
-colonne_4.afficher_pile()
 
-colonne_5 = Colonne()
-for _ in range(6):
-    colonne_5.ajouter_carte()
-colonne_5.afficher_pile()
+def choisir_carte() -> Foundation:
+    for colonne in les_colonnes:
+        for _ in range(colonne.numero):
+            for foundation in les_foundations:
+                if colonne.afficher_premiere_carte.keys() == str(foundation.numero):
+                    carte = colonne.retirer_carte
+                    foundation.ajouter_carte(carte)
+                return foundation
 
-colonne_6 = Colonne()
-for _ in range(7):
-    colonne_6.ajouter_carte()
-colonne_6.afficher_pile()
-
-colonne_7 = Colonne()
-for _ in range(8):
-    colonne_7.ajouter_carte()
-colonne_7.afficher_pile()
 
 """ Pile des cartes (fondations) par couleur """
 """ couleurs: card.suit -> 0=pique , 1=coeur, 2=carreaux, 3=trefle  """
 
-foundation_pique = Foundation('Pique', '0')
-foundation_pique.afficher_pile()
-
-foundation_coeur = Foundation('Coeur', '1')
-foundation_coeur.afficher_pile()
-
-foundation_carreaux = Foundation('Carreaux', '2')
-foundation_carreaux.afficher_pile()
-
-foundation_trefle = Foundation('Trefle', '3')
-foundation_trefle.afficher_pile()
+if __name__ == '__main__':
+    commencer_solitaire()
+    print(choisir_carte())
